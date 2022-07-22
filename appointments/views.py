@@ -1,8 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
-from pandas import date_range
 from rest_framework.parsers import JSONParser
-from yaml import serialize
 from .models import Appointment
 from .serializers import AppoitmentSerializer
 from django.views.decorators.csrf import csrf_exempt
