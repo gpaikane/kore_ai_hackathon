@@ -89,3 +89,76 @@ def appointment_booked_appoitment(request):
             return Response(serializer.data)
         else:
             return Response(status = status.HTTP_404_NOT_FOUND)
+
+@api_view(["GET"])
+def check_appoitment(request):
+
+    """
+    check if appointment exist for the give slot and date
+    """
+
+    slot = request.query_params.get("slot")
+    date = request.query_params.get("date")
+
+    print(slot)
+    print(date)
+
+    if request.method == "GET":
+        appoitments = Appointment.objects.filter(slot = slot, date = date)
+        if (len(appoitments)>0):
+            serializer  = AppoitmentSerializer(appoitments, many= True)
+            return Response(serializer.data)
+        else:
+            return Response(status = status.HTTP_404_NOT_FOUND)
+
+
+
+def check_slot_available(slot, date):
+    appoitments = Appointment.objects.filter(slot = slot, date = date)
+    return len(appoitments)
+
+
+
+@api_view(["GET"])
+def check_next_available_slot(request):
+
+    """
+    This function can get  next available slot for the user.
+    """
+
+    slot = request.query_params.get("slot")
+    date = request.query_params.get("date")
+
+    startdate =  datetime.strptime(date, "%Y-%m-%d")
+
+    print(type(startdate.weekday()))
+
+    for slot_num in range(1, 21):
+        if (slot_num <= int(slot))  or startdate.weekday() ==6:
+            continue
+        else:
+            if(check_slot_available(slot_num, date)==0):
+                return Response({'slot':slot_num, 'date':date})
+
+        
+    print(startdate)
+    enddate = startdate + timedelta(days=60)
+    startdate = startdate + timedelta(days=1)
+
+
+    while(startdate != enddate):
+        
+
+        if(startdate.weekday()==6):
+            startdate = startdate + timedelta(days=1)
+            continue
+        else:
+            for slot_num in range(1, 21):
+                if(check_slot_available(slot_num, startdate)==0):
+                    print(startdate)
+                    print(slot_num)
+                    startdate =  datetime.strptime(str(startdate).split()[0],"%Y-%m-%d")
+                    return Response({'slot':slot_num, 'date':str(startdate).split()[0]})
+
+        startdate = startdate + timedelta(days=1)
+    return Response(status = status.HTTP_404_NOT_FOUND)
