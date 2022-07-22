@@ -22,7 +22,7 @@ from django.urls import include, re_path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('appointments.urls'))
+    path('', include('appointments.urls')),
     re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}), 
 ]
 
