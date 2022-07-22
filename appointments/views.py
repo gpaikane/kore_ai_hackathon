@@ -162,3 +162,21 @@ def check_next_available_slot(request):
 
         startdate = startdate + timedelta(days=1)
     return Response(status = status.HTTP_404_NOT_FOUND)
+
+@api_view(["GET"])
+def get_booked_appointment(request):
+
+    """
+    Retrives appointments scheduled for today or in future by filterning on date range and phone number.
+    """
+
+    print(request)
+    phone = request.query_params.get("phone")
+    id = request.query_params.get("id")
+    appoitments = Appointment.objects.filter(id = id, phone = phone)
+    if (len(appoitments)==0):
+        return Response(status = status.HTTP_404_NOT_FOUND)
+    else:
+        serializer  = AppoitmentSerializer(appoitments, many= True)
+        return Response(serializer.data)
+
